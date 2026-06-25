@@ -1367,6 +1367,7 @@ let wbTimer = null;
 let wbKnownIds = new Set();
 
 function openWallboard() {
+  document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('wallboardView').classList.add('show');
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('historyView').classList.remove('show');
