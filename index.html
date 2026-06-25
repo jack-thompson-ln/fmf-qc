@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<title>FMF QC</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #004b8e;
+    --brand-dark: #003a6e;
+    --accent: #0099ff;
+    --off-white: #f4f7fb;
+    --border: #dce8f5;
+    --text: #0d1b2a;
+    --text-muted: #5a7a9a;
+    --success: #00b86b;
+    --error: #e03c3c;
+    --shadow: 0 4px 24px rgba(0,75,142,0.13);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  button, a, input, select, textarea { touch-action: manipulation; }
+  body { font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--text); min-height: 100dvh; }
+
+  /* ── HEADER ── */
+  header { background: var(--brand); position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 16px rgba(0,0,0,0.18); }
+  .header-inner { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+  .logo-mark { width: 38px; height: 38px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-mark svg { width: 22px; height: 22px; color: white; }
+  .header-titles { flex: 1; min-width: 0; }
+  .header-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 800; color: white; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.1; }
+  .header-sub { font-size: 0.65rem; color: rgba(255,255,255,0.65); letter-spacing: 0.06em; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .datetime-pill { background: rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 9px; text-align: right; }
+  .datetime-time { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; color: white; }
+  .datetime-date { font-size: 0.6rem; color: rgba(255,255,255,0.65); }
+  .header-pill {
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 10px; padding: 8px; color: white; cursor: pointer;
+    transition: all 0.15s ease; width: 36px; height: 36px; flex-shrink: 0; position: relative;
+  }
+  .header-pill:active { background: rgba(255,255,255,0.3); transform: scale(0.96); }
+  .header-pill svg { width: 17px; height: 17px; }
+  .pill-badge {
+    position: absolute; top: -4px; right: -4px;
+    background: #ff4757; color: white; font-size: 0.55rem; font-weight: 800;
+    border-radius: 8px; padding: 1px 4px; min-width: 14px; text-align: center; line-height: 1.4;
+    display: none;
+  }
+  .pill-badge.show { display: inline-block; }
+  .header-driver-chip {
+    display: none; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 10px; padding: 6px 12px 6px 8px; flex-shrink: 0; min-width: 0;
+  }
+  .header-driver-chip-avatar { width: 26px; height: 26px; background: rgba(255,255,255,0.2); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .header-driver-chip-avatar svg { width: 14px; height: 14px; color: white; }
+  .header-driver-chip-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 800; color: white; letter-spacing: 0.03em; white-space: nowrap; }
+  .header-driver-chip-sub { font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  @media (min-width: 700px) { .header-driver-chip { display: flex; } .user-welcome { display: none !important; } }
+
+  /* ── MAIN ── */
+  main { padding: 20px 16px 40px; max-width: 560px; margin: 0 auto; }
+
+  /* ── LOGIN SCREEN ── */
+  #loginScreen {
+    position: fixed; inset: 0; z-index: 500;
+    background: linear-gradient(135deg, var(--brand) 0%, #0066bb 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+  }
+  #loginScreen.hidden { display: none; }
+  .login-logo { width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .login-logo svg { width: 34px; height: 34px; color: white; }
+  .login-app-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.6rem; font-weight: 800; color: white; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+  .login-app-sub { font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 28px; }
+  .login-box { background: white; border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .login-step-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin-bottom: 10px; }
+  .user-login-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+  .user-login-btn { background: var(--off-white); border: 2px solid var(--border); border-radius: 10px; padding: 10px 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); cursor: pointer; text-align: center; transition: all 0.15s; touch-action: manipulation; }
+  .user-login-btn.selected { background: var(--brand); border-color: var(--brand); color: white; box-shadow: 0 3px 12px rgba(0,75,142,0.3); }
+  .login-divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .login-pin-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin-bottom: 12px; text-align: center; }
+  .login-selected-badge { display: flex; align-items: center; gap: 8px; background: rgba(0,75,142,0.07); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+  .login-selected-badge svg { width: 16px; height: 16px; color: var(--brand); flex-shrink: 0; }
+  .login-selected-badge span { font-size: 0.9rem; font-weight: 700; color: var(--brand); }
+  .login-pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; }
+  .login-pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--border); background: white; transition: all 0.15s; }
+  .login-pin-dot.filled { background: var(--brand); border-color: var(--brand); transform: scale(1.15); }
+  .login-pin-dot.error { background: var(--error); border-color: var(--error); animation: shake 0.35s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0) scale(1.15)} 25%{transform:translateX(-4px) scale(1.15)} 75%{transform:translateX(4px) scale(1.15)} }
+  .login-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .login-key { background: var(--off-white); border: 2px solid var(--border); border-radius: 10px; padding: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--text); cursor: pointer; transition: all 0.1s; user-select: none; touch-action: manipulation; }
+  .login-key:active { background: var(--brand); color: white; border-color: var(--brand); transform: scale(0.93); }
+  .login-key.empty { visibility: hidden; }
+  .login-error { font-size: 0.8rem; color: var(--error); font-weight: 600; text-align: center; margin-top: 10px; min-height: 18px; }
+  .login-back-btn { background: none; border: none; color: var(--text-muted); font-family: 'Barlow', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 6px 0; display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+  .login-back-btn svg { width: 14px; height: 14px; }
+  .login-cog-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .login-cog-btn { background: none; border: none; color: rgba(255,255,255,0.45); cursor: pointer; padding: 6px; border-radius: 8px; display: flex; position: relative; }
+  .login-cog-btn svg { width: 18px; height: 18px; }
+  .cog-menu { position: absolute; bottom: calc(100% + 6px); right: 0; background: white; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); border: 1.5px solid var(--border); padding: 6px; min-width: 180px; display: none; z-index: 600; }
+  .cog-menu.open { display: block; }
+  .cog-item { padding: 10px 14px; font-size: 0.88rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+  .cog-item:hover { background: var(--off-white); }
+  .cog-item svg { width: 15px; height: 15px; color: var(--brand); flex-shrink: 0; }
+
+  /* ── CARDS ── */
+  .card { background: white; border-radius: var(--radius); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); overflow: visible; position: relative; }
+  @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .card-label svg { width: 14px; height: 14px; opacity: 0.8; }
+
+  /* ── INPUTS ── */
+  input[type="text"], input[type="number"], input[type="password"], textarea {
+    width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 10px;
+    font-family: 'Barlow', sans-serif; font-size: 1rem; font-weight: 500; color: var(--text);
+    background: var(--off-white); transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none; outline: none;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: var(--brand); background: white; box-shadow: 0 0 0 3px rgba(0,75,142,0.1);
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-muted); font-weight: 400; }
+
+  /* ── WELCOME STRIP ── */
+  .user-welcome { display: flex; flex-direction: column; gap: 10px; background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); }
+  .user-welcome-top { display: flex; align-items: center; gap: 10px; }
+  .user-welcome-icon { width: 36px; height: 36px; background: rgba(0,75,142,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .user-welcome-icon svg { width: 18px; height: 18px; color: var(--brand); }
+  .user-welcome-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--brand); }
+  .user-welcome-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; }
+
+  /* ── SUBMIT BUTTON ── */
+  .submit-btn { width: 100%; padding: 17px; background: var(--brand); color: white; border: none; border-radius: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 24px rgba(0,75,142,0.35); display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+  .submit-btn:active { transform: scale(0.98); background: var(--brand-dark); }
+  .submit-btn:disabled { background: #a0b8cc; box-shadow: none; cursor: not-allowed; }
+
+  /* ── STATUS BARS ── */
+  .status-bar { border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; display: none; align-items: flex-start; gap: 12px; }
+  .status-bar.show { display: flex; }
+  .status-bar.loading { background: rgba(0,75,142,0.07); border: 1.5px solid var(--border); }
+  .status-bar.error { background: rgba(224,60,60,0.07); border: 1.5px solid rgba(224,60,60,0.25); }
+  .status-text { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+  .status-text strong { display: block; font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(0,75,142,0.2); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── SUCCESS SCREEN ── */
+  #successScreen { display: none; flex-direction: column; align-items: center; text-align: center; padding: 40px 20px; }
+  #successScreen.show { display: flex; animation: slideUp 0.4s ease; }
+  .success-circle { width: 80px; height: 80px; background: linear-gradient(135deg, var(--brand), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0,75,142,0.35); }
+  .success-circle svg { width: 38px; height: 38px; color: white; }
+  #successScreen h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--brand); margin-bottom: 8px; }
+  #successScreen p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 6px; line-height: 1.5; }
+  #successRef { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--brand); background: rgba(0,75,142,0.07); border-radius: 8px; padding: 6px 14px; margin: 10px 0 24px; word-break: break-all; }
+  .new-record-btn { width: 100%; max-width: 320px; padding: 15px; background: var(--brand); color: white; border: none; border-radius: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 24px rgba(0,75,142,0.3); }
+
+  /* ── PARCEL SECTION ── */
+  .parcel-card { background: var(--off-white); border: 2px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; position: relative; }
+  .parcel-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .parcel-num { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 800; color: var(--brand); letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .parcel-remove-btn { background: none; border: none; color: var(--error); cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .parcel-remove-btn svg { width: 16px; height: 16px; }
+  .parcel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .parcel-field label { display: block; font-size: 0.68rem; font-weight: 700; color: var(--brand); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+  .parcel-field input { padding: 10px 12px; font-size: 0.92rem; }
+  /* Photo zone inside parcel */
+  .parcel-photo-zone { border: 2px dashed var(--border); border-radius: 10px; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; background: white; transition: all 0.2s; }
+  .parcel-photo-zone.has-photo { border-style: solid; border-color: var(--brand); }
+  .parcel-photo-zone img { width: 100%; object-fit: cover; display: block; min-height: 120px; max-height: 200px; }
+  .parcel-photo-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px; }
+  .parcel-photo-icon { width: 36px; height: 36px; background: rgba(0,75,142,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .parcel-photo-icon svg { width: 18px; height: 18px; color: var(--brand); }
+  .parcel-photo-placeholder p { font-weight: 600; font-size: 0.82rem; color: var(--brand); }
+  .parcel-photo-placeholder span { font-size: 0.7rem; color: var(--text-muted); }
+  .parcel-photo-retake { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 6px; padding: 4px 10px; font-family: 'Barlow', sans-serif; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+  .add-parcel-btn { width: 100%; padding: 12px; border: 2px dashed var(--border); background: none; border-radius: 12px; font-family: 'Barlow', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; margin-bottom: 14px; }
+  .add-parcel-btn:hover { border-color: var(--brand); color: var(--brand); background: rgba(0,75,142,0.04); }
+  .add-parcel-btn svg { width: 16px; height: 16px; }
+
+  /* ── OFFLINE NOTICE ── */
+  #offlineNotice { display: none; background: rgba(240,165,0,0.1); border: 1.5px solid rgba(240,165,0,0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.83rem; color: #7a5800; font-weight: 600; }
+  #offlineNotice.show { display: block; }
+
+  /* ── PIN MODAL ── */
+  #pinModal { display: none; position: fixed; inset: 0; z-index: 700; background: rgba(0,20,50,0.65); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
+  #pinModal.open { display: flex; animation: slideUp 0.2s ease; }
+  .pin-modal-box { background: white; border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 320px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .pin-modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--brand); text-align: center; margin-bottom: 4px; }
+  .pin-modal-desc { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+  .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--border); background: white; transition: all 0.15s; }
+  .pin-dot.filled { background: var(--brand); border-color: var(--brand); transform: scale(1.15); }
+  .pin-dot.error { background: var(--error); border-color: var(--error); animation: shake 0.35s ease; }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pin-key { background: var(--off-white); border: 2px solid var(--border); border-radius: 10px; padding: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--text); cursor: pointer; transition: all 0.1s; user-select: none; touch-action: manipulation; }
+  .pin-key:active { background: var(--brand); color: white; border-color: var(--brand); transform: scale(0.93); }
+  .pin-key.empty { visibility: hidden; }
+  .pin-error { font-size: 0.8rem; color: var(--error); font-weight: 600; text-align: center; margin-top: 10px; min-height: 18px; }
+  .pin-cancel-btn { width: 100%; margin-top: 12px; padding: 10px; background: none; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Barlow', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+
+  /* ── HISTORY VIEW ── */
+  #historyView { display: none; }
+  #historyView.show { display: block; animation: slideUp 0.25s ease; }
+  .history-header { display: flex; align-items: center; gap: 10px; padding: 16px 0 8px; }
+  .back-btn { background: none; border: none; color: var(--brand); font-family: 'Barlow', sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 6px 0; }
+  .back-btn svg { width: 16px; height: 16px; }
+  .history-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--brand); flex: 1; }
+  .filter-bar { background: white; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; box-shadow: var(--shadow); border: 1.5px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+  .filter-row { display: flex; align-items: center; gap: 8px; }
+  .filter-label { font-size: 0.7rem; font-weight: 700; color: var(--brand); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+  .filter-row input[type="date"] { flex: 1; padding: 8px 10px; font-size: 0.85rem; }
+  .filter-row input[type="text"] { flex: 1; padding: 8px 12px; font-size: 0.88rem; }
+  .filter-clear-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 12px; font-family: 'Barlow', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
+  .record-list { display: flex; flex-direction: column; gap: 10px; }
+  .record-card { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); border: 1.5px solid var(--border); cursor: pointer; transition: all 0.15s; }
+  .record-card:active { transform: scale(0.99); border-color: var(--brand); }
+  .record-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .record-card-icon { width: 36px; height: 36px; background: rgba(0,75,142,0.08); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .record-card-icon svg { width: 16px; height: 16px; color: var(--brand); }
+  .record-card-body { flex: 1; min-width: 0; }
+  .record-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .record-card-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+  .record-card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .record-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
+  .record-badge.parcels { background: rgba(0,75,142,0.1); color: var(--brand); }
+  .record-badge.checker { background: rgba(0,184,107,0.1); color: #00804a; }
+  .record-badge.packer { background: rgba(0,153,255,0.12); color: #0070cc; }
+  .history-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .history-empty svg { width: 40px; height: 40px; opacity: 0.3; margin: 0 auto 12px; display: block; }
+  .history-empty p { font-size: 0.9rem; }
+  .history-loading { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+  /* ── DETAIL VIEW ── */
+  #detailView { display: none; }
+  #detailView.show { display: block; animation: slideUp 0.25s ease; }
+  .detail-header { display: flex; align-items: center; gap: 10px; padding: 16px 0 8px; }
+  .detail-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--brand); flex: 1; }
+  .detail-card { background: white; border-radius: var(--radius); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); }
+  .detail-field { margin-bottom: 14px; }
+  .detail-field:last-child { margin-bottom: 0; }
+  .detail-field-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .detail-field-value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .detail-parcel-card { background: var(--off-white); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+  .detail-parcel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .detail-parcel-num { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 800; color: var(--brand); letter-spacing: 0.06em; text-transform: uppercase; }
+  .detail-parcel-weight { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .detail-parcel-img { width: 100%; border-radius: 8px; object-fit: cover; max-height: 200px; cursor: pointer; margin-top: 8px; }
+  .detail-parcel-no-photo { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin-top: 4px; }
+  /* Edit button (admin only) */
+  .edit-record-btn { width: 100%; padding: 14px; background: none; border: 2px solid var(--brand); border-radius: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; transition: all 0.15s; }
+  .edit-record-btn:active { background: rgba(0,75,142,0.06); }
+  .edit-record-btn svg { width: 15px; height: 15px; }
+
+  /* ── LIGHTBOX ── */
+  #lightbox { display: none; position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+  #lightbox.open { display: flex; }
+  #lightboxImg { max-width: 94vw; max-height: 88vh; border-radius: 10px; object-fit: contain; }
+
+  /* ── WALLBOARD ── */
+  #wallboardView { display: none; }
+  #wallboardView.show {
+    display: flex; flex-direction: column;
+    position: fixed; inset: 0; z-index: 400;
+    background: #050e1a;
+    overflow: hidden;
+  }
+  .wb-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1.5px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+  }
+  .wb-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 800; color: white; letter-spacing: 0.06em; text-transform: uppercase; }
+  .wb-sub { font-size: 0.65rem; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; text-transform: uppercase; }
+  .wb-spacer { flex: 1; }
+  .wb-clock { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: white; line-height: 1; }
+  .wb-date { font-size: 0.65rem; color: rgba(255,255,255,0.45); text-align: right; }
+  .wb-stats { display: flex; gap: 24px; padding: 14px 24px; border-bottom: 1.5px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+  .wb-stat { text-align: center; }
+  .wb-stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: white; line-height: 1; }
+  .wb-stat-val.green { color: var(--success); }
+  .wb-stat-val.blue { color: var(--accent); }
+  .wb-stat-lbl { font-size: 0.62rem; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .wb-ticker-wrap { flex: 1; overflow: hidden; position: relative; padding: 0 24px; }
+  .wb-ticker-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 14px 0 8px; }
+  .wb-ticker-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100% - 50px); padding-bottom: 20px; }
+  .wb-ticker-item {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+    animation: slideUp 0.4s ease;
+  }
+  .wb-ticker-item.new { border-color: rgba(0,153,255,0.4); background: rgba(0,153,255,0.08); }
+  .wb-ticker-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+  .wb-ticker-dot.new { background: var(--accent); animation: pulse 1.5s infinite; }
+  .wb-ticker-body { flex: 1; min-width: 0; }
+  .wb-ticker-account { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 800; color: white; letter-spacing: 0.04em; }
+  .wb-ticker-meta { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .wb-ticker-right { text-align: right; flex-shrink: 0; }
+  .wb-ticker-parcels { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 800; color: var(--accent); }
+  .wb-ticker-time { font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-top: 2px; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .wb-refresh-info { font-size: 0.65rem; color: rgba(255,255,255,0.2); padding: 8px 24px 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+  .wb-exit-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.5); cursor: pointer; }
+  .wb-exit-btn:hover { color: white; border-color: rgba(255,255,255,0.3); }
+
+  /* Logout pill */
+  .logout-pill {
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 10px; padding: 8px; color: white; cursor: pointer;
+    transition: all 0.15s ease; width: 36px; height: 36px; flex-shrink: 0;
+  }
+  .logout-pill:active { background: rgba(255,255,255,0.3); transform: scale(0.96); }
+  .logout-pill svg { width: 17px; height: 17px; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>
+  </div>
+  <div class="login-app-name">FMF QC</div>
+  <div class="login-app-sub">Postal Order Quality Control</div>
+
+  <div class="login-box">
+    <!-- Step 1: pick user -->
+    <div id="loginStep1">
+      <div class="login-step-label">Select your name</div>
+      <div class="user-login-grid" id="userLoginGrid">
+        <div style="grid-column:span 3;text-align:center;color:var(--text-muted);font-size:0.82rem;padding:10px;">Loading users…</div>
+      </div>
+    </div>
+
+    <!-- Step 2: PIN -->
+    <div id="loginStep2" style="display:none;">
+      <button class="login-back-btn" onclick="loginGoBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="login-selected-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span id="loginSelectedName"></span>
+      </div>
+      <div class="login-pin-label">Enter your PIN</div>
+      <div class="login-pin-dots">
+        <div class="login-pin-dot" id="lpd0"></div>
+        <div class="login-pin-dot" id="lpd1"></div>
+        <div class="login-pin-dot" id="lpd2"></div>
+        <div class="login-pin-dot" id="lpd3"></div>
+      </div>
+      <div class="login-keypad">
+        <button class="login-key" onclick="loginPinPress('1')">1</button>
+        <button class="login-key" onclick="loginPinPress('2')">2</button>
+        <button class="login-key" onclick="loginPinPress('3')">3</button>
+        <button class="login-key" onclick="loginPinPress('4')">4</button>
+        <button class="login-key" onclick="loginPinPress('5')">5</button>
+        <button class="login-key" onclick="loginPinPress('6')">6</button>
+        <button class="login-key" onclick="loginPinPress('7')">7</button>
+        <button class="login-key" onclick="loginPinPress('8')">8</button>
+        <button class="login-key" onclick="loginPinPress('9')">9</button>
+        <button class="login-key empty"></button>
+        <button class="login-key" onclick="loginPinPress('0')">0</button>
+        <button class="login-key" onclick="loginPinBackspace()">⌫</button>
+      </div>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- Cog menu (admin access from login) -->
+  <div class="login-cog-row">
+    <button class="login-cog-btn" id="loginCogBtn" onclick="toggleCogMenu(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <div class="cog-menu" id="cogMenu">
+        <div class="cog-item" onclick="cogOpen('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+          View History
+        </div>
+        <div class="cog-item" onclick="cogOpen('wallboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Live Wallboard
+        </div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+    </div>
+    <div class="header-titles">
+      <div class="header-title">FMF QC</div>
+      <div class="header-sub">Postal Order Quality Control</div>
+    </div>
+    <div class="header-right">
+      <!-- driver chip (desktop) -->
+      <div class="header-driver-chip" id="headerUserChip" style="display:none;">
+        <div class="header-driver-chip-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div>
+          <div class="header-driver-chip-name" id="headerUserName"></div>
+          <div class="header-driver-chip-sub" id="headerUserSub">Logged in</div>
+        </div>
+      </div>
+
+      <!-- history button -->
+      <button class="header-pill" title="History" onclick="openPinModal('history')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+      </button>
+
+      <!-- logout -->
+      <button class="logout-pill" title="Log out" onclick="logoutUser()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+
+      <!-- clock -->
+      <div class="datetime-pill">
+        <div class="datetime-time" id="headerTime">--:--</div>
+        <div class="datetime-date" id="headerDate"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+  <div id="offlineNotice">⚠ No internet connection — data will be saved when you're back online.</div>
+
+  <!-- ── FORM SECTION ── -->
+  <div id="formSection" style="display:none;">
+
+    <!-- Welcome strip -->
+    <div class="user-welcome" id="userWelcome">
+      <div class="user-welcome-top">
+        <div class="user-welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div>
+          <div class="user-welcome-name" id="userWelcomeName"></div>
+          <div class="user-welcome-sub" id="userWelcomeSub">Packing initials recorded automatically</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order details card -->
+    <div class="card">
+      <div class="card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Order Details
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:0.68rem;font-weight:700;color:var(--brand);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;">Account Number</label>
+        <input type="text" id="accountNumber" placeholder="e.g. ACC001234" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');updateSubmitBtn()">
+      </div>
+      <div>
+        <label style="display:block;font-size:0.68rem;font-weight:700;color:var(--brand);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;">Customer Name</label>
+        <input type="text" id="customerName" placeholder="SMITH JAMES" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9 ]/g,'');updateSubmitBtn()">
+      </div>
+    </div>
+
+    <!-- Initials card -->
+    <div class="card">
+      <div class="card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Initials
+      </div>
+      <div class="parcel-row">
+        <div class="parcel-field">
+          <label>Checked by</label>
+          <input type="text" id="checkerInitials" maxlength="4" placeholder="JD" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'');updateSubmitBtn()">
+        </div>
+        <div class="parcel-field">
+          <label>Packed by</label>
+          <input type="text" id="packerInitials" maxlength="4" placeholder="Auto" readonly style="background:rgba(0,75,142,0.06);cursor:default;" title="Set from your login">
+        </div>
+      </div>
+    </div>
+
+    <!-- Parcels card -->
+    <div class="card">
+      <div class="card-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Parcels
+      </div>
+      <div id="parcelList"></div>
+      <button class="add-parcel-btn" onclick="addParcel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Parcel
+      </button>
+    </div>
+
+    <!-- Status bars -->
+    <div class="status-bar loading" id="statusLoading">
+      <div class="spinner"></div>
+      <div class="status-text"><strong>Saving QC record…</strong>Uploading photos and recording data.</div>
+    </div>
+    <div class="status-bar error" id="statusError">
+      <div style="flex-shrink:0;color:var(--error)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="status-text" id="statusErrorText"></div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitQC()" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><polyline points="20 6 9 17 4 12"/></svg>
+      Submit QC Check
+    </button>
+  </div>
+
+  <!-- ── SUCCESS SCREEN ── -->
+  <div id="successScreen">
+    <div class="success-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>QC Recorded</h2>
+    <p>Postal order quality check submitted successfully.</p>
+    <div id="successRef"></div>
+    <button class="new-record-btn" onclick="resetForm()">New QC Check</button>
+  </div>
+
+  <!-- ── HISTORY VIEW ── -->
+  <div id="historyView">
+    <div class="history-header">
+      <button class="back-btn" onclick="showForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="history-title" id="historyTitle">History</div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-row">
+        <span class="filter-label">Search</span>
+        <input type="text" id="filterSearch" placeholder="Account, customer or initials…" oninput="applyFilters()">
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">From</span>
+        <input type="date" id="filterFrom" onchange="applyFilters()">
+        <span class="filter-label">To</span>
+        <input type="date" id="filterTo" onchange="applyFilters()">
+        <button class="filter-clear-btn" onclick="clearFilters()">Clear</button>
+      </div>
+    </div>
+
+    <div class="record-list" id="recordList">
+      <div class="history-loading"><div class="spinner"></div>Loading…</div>
+    </div>
+  </div>
+
+  <!-- ── DETAIL VIEW ── -->
+  <div id="detailView">
+    <div class="detail-header">
+      <button class="back-btn" onclick="returnToHistory()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        History
+      </button>
+      <div class="detail-title">QC Detail</div>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+</main>
+
+<!-- ── WALLBOARD VIEW ── -->
+<div id="wallboardView">
+  <div class="wb-header">
+    <div>
+      <div class="wb-logo">FMF QC — Live Feed</div>
+      <div class="wb-sub">Postal Order Quality Control</div>
+    </div>
+    <div class="wb-spacer"></div>
+    <div>
+      <div class="wb-clock" id="wbClock">--:--</div>
+      <div class="wb-date" id="wbDate"></div>
+    </div>
+  </div>
+  <div class="wb-stats" id="wbStats">
+    <div class="wb-stat"><div class="wb-stat-val blue" id="wbStatToday">—</div><div class="wb-stat-lbl">Today's Checks</div></div>
+    <div class="wb-stat"><div class="wb-stat-val green" id="wbStatParcels">—</div><div class="wb-stat-lbl">Total Parcels</div></div>
+    <div class="wb-stat"><div class="wb-stat-val" id="wbStatCheckers">—</div><div class="wb-stat-lbl">Checkers Active</div></div>
+  </div>
+  <div class="wb-ticker-wrap">
+    <div class="wb-ticker-label">Recent Submissions</div>
+    <div class="wb-ticker-list" id="wbTickerList">
+      <div style="color:rgba(255,255,255,0.2);font-size:0.85rem;padding:20px 0;">Waiting for submissions…</div>
+    </div>
+  </div>
+  <div class="wb-refresh-info">
+    <span id="wbRefreshText">Auto-refreshes every 30s</span>
+    <button class="wb-exit-btn" onclick="closeWallboard()">Exit Wallboard</button>
+  </div>
+</div>
+
+<!-- ── PIN MODAL ── -->
+<div id="pinModal">
+  <div class="pin-modal-box">
+    <div class="pin-modal-title" id="pinModalTitle">Admin Access</div>
+    <div class="pin-modal-desc" id="pinModalDesc">Enter the admin PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key" onclick="pinBackspace()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <button class="pin-cancel-btn" onclick="closePinModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ── LIGHTBOX ── -->
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Parcel photo">
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+// IMPORTANT: Replace these with your own Supabase project values
+const config = {
+  url:       'https://jldbkjpqrtrfykdogkbf.supabase.co',
+  key:       'YEyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpsZGJranBxcnRyZnlrZG9na2JmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTI5OTAsImV4cCI6MjA5Nzk2ODk5MH0.1FgHOB1JerIbBgliwbc0RUegoXPQHf3bXydQ7RZzmJM',
+  bucket:    'qc-photos',        // Storage bucket name
+  table:     'qc_checks',        // Main submissions table
+  adminPin:  '1234'              // Change this to your admin PIN
+};
+
+// ── SUPABASE ──────────────────────────────────────────────
+async function sbRequest(path, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    return await fetch(`${config.url}${path}`, {
+      ...options,
+      signal: options.signal || controller.signal,
+      headers: {
+        'apikey': config.key,
+        'Authorization': `Bearer ${config.key}`,
+        ...(options.headers || {})
+      }
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function uploadParcelPhoto(filename, blob) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 45000);
+  try {
+    const res = await sbRequest(
+      `/storage/v1/object/${encodeURIComponent(config.bucket)}/${encodeURIComponent(filename)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': blob.type || 'image/jpeg', 'x-upsert': 'true' },
+        body: blob,
+        signal: controller.signal
+      }
+    );
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.message || `Photo upload failed (${res.status})`);
+    }
+    return `${config.url}/storage/v1/object/public/${config.bucket}/${encodeURIComponent(filename)}`;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ── CLOCK ─────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── ONLINE STATUS ─────────────────────────────────────────
+function updateOnlineStatus() {
+  document.getElementById('offlineNotice').classList.toggle('show', !navigator.onLine);
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+// ── USER LOGIN ────────────────────────────────────────────
+let loggedInUser     = '';
+let loggedInInitials = '';
+let allUsers         = [];
+let loginSelectedName = '';
+let loginPinEntry     = '';
+const USER_CACHE_KEY  = 'fmf_qc_users_v1';
+
+async function fetchUsers() {
+  const res = await sbRequest('/rest/v1/qc_users?select=name,initials,pin&active=eq.true&order=name.asc', {
+    headers: { 'Accept': 'application/json' }
+  });
+  if (!res.ok) throw new Error(`Failed to load users (${res.status})`);
+  const users = await res.json();
+  try { localStorage.setItem(USER_CACHE_KEY, JSON.stringify(users)); } catch (_) {}
+  return users;
+}
+
+async function initUserLogin() {
+  const saved = localStorage.getItem('fmf_qc_user');
+  if (saved) {
+    try {
+      const obj = JSON.parse(saved);
+      loggedInUser     = obj.name;
+      loggedInInitials = obj.initials;
+      try {
+        const cached = localStorage.getItem(USER_CACHE_KEY);
+        if (cached) allUsers = JSON.parse(cached);
+      } catch (_) {}
+      showAppAsUser(obj.name, obj.initials);
+      return;
+    } catch (_) {}
+  }
+
+  try {
+    const cached = localStorage.getItem(USER_CACHE_KEY);
+    if (cached) allUsers = JSON.parse(cached);
+  } catch (_) {}
+
+  if (navigator.onLine) {
+    try { allUsers = await fetchUsers(); } catch (e) { console.warn('Could not load users:', e.message); }
+  }
+
+  buildUserLoginGrid();
+}
+
+function buildUserLoginGrid() {
+  const grid = document.getElementById('userLoginGrid');
+  if (!allUsers.length) {
+    grid.innerHTML = `<div style="grid-column:span 3;text-align:center;color:var(--error);font-size:0.82rem;padding:10px;">
+      ${navigator.onLine ? 'Could not load users. Check connection.' : 'No connection. Please reconnect.'}
+    </div>`;
+    return;
+  }
+  grid.innerHTML = allUsers.map(u =>
+    `<button class="user-login-btn" onclick="loginSelectUser('${escHtml(u.name)}')">${escHtml(u.name)}</button>`
+  ).join('');
+}
+
+function loginSelectUser(name) {
+  loginSelectedName = name;
+  loginPinEntry = '';
+  document.getElementById('loginSelectedName').textContent = name;
+  document.getElementById('loginStep1').style.display = 'none';
+  document.getElementById('loginStep2').style.display = 'block';
+  document.getElementById('loginError').textContent = '';
+  updateLoginDots();
+}
+
+function loginGoBack() {
+  loginSelectedName = '';
+  loginPinEntry = '';
+  document.getElementById('loginStep1').style.display = 'block';
+  document.getElementById('loginStep2').style.display = 'none';
+  document.getElementById('loginError').textContent = '';
+  updateLoginDots();
+}
+
+function loginPinPress(digit) {
+  if (loginPinEntry.length >= 4) return;
+  loginPinEntry += digit;
+  updateLoginDots();
+  if (loginPinEntry.length === 4) setTimeout(checkLoginPin, 130);
+}
+
+function loginPinBackspace() {
+  loginPinEntry = loginPinEntry.slice(0, -1);
+  updateLoginDots();
+  document.getElementById('loginError').textContent = '';
+}
+
+function updateLoginDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('lpd' + i);
+    dot.classList.toggle('filled', i < loginPinEntry.length);
+    dot.classList.remove('error');
+  }
+}
+
+function checkLoginPin() {
+  const user = allUsers.find(u => u.name === loginSelectedName);
+  if (user && loginPinEntry === user.pin) {
+    loggedInUser     = user.name;
+    loggedInInitials = user.initials || user.name.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
+    localStorage.setItem('fmf_qc_user', JSON.stringify({ name: loggedInUser, initials: loggedInInitials }));
+    showAppAsUser(loggedInUser, loggedInInitials);
+  } else {
+    for (let i = 0; i < 4; i++) document.getElementById('lpd' + i).classList.add('error');
+    document.getElementById('loginError').textContent = 'Incorrect PIN. Try again.';
+    setTimeout(() => { loginPinEntry = ''; updateLoginDots(); }, 750);
+  }
+}
+
+function showAppAsUser(name, initials) {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('formSection').style.display = 'block';
+  document.getElementById('userWelcomeName').textContent = name;
+  document.getElementById('userWelcomeSub').textContent  = `Packing initials: ${initials}`;
+  document.getElementById('packerInitials').value = initials;
+  document.getElementById('headerUserName').textContent = name;
+  document.getElementById('headerUserChip').style.display = 'flex';
+  initParcels();
+  updateSubmitBtn();
+}
+
+function logoutUser() {
+  if (!confirm(`Log out as ${loggedInUser}?`)) return;
+  localStorage.removeItem('fmf_qc_user');
+  loggedInUser     = '';
+  loggedInInitials = '';
+  loginSelectedName = '';
+  loginPinEntry = '';
+  loginGoBack();
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('historyView').classList.remove('show');
+  document.getElementById('detailView').classList.remove('show');
+  document.getElementById('headerUserChip').style.display = 'none';
+  initUserLogin();
+}
+
+// ── COG MENU ──────────────────────────────────────────────
+function toggleCogMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('cogMenu');
+  menu.classList.toggle('open');
+}
+function cogOpen(dest) {
+  document.getElementById('cogMenu').classList.remove('open');
+  openPinModal(dest);
+}
+document.addEventListener('click', () => {
+  document.getElementById('cogMenu')?.classList.remove('open');
+});
+
+// ── PIN MODAL ─────────────────────────────────────────────
+let pinEntry = '';
+let pinDestination = 'history';
+
+function openPinModal(dest = 'history') {
+  pinDestination = dest;
+  pinEntry = '';
+  updatePinDots();
+  document.getElementById('pinError').textContent = '';
+  const titles = { history: 'History', wallboard: 'Live Wallboard' };
+  const descs  = { history: 'Enter the admin PIN to view history', wallboard: 'Enter the admin PIN to open the wallboard' };
+  document.getElementById('pinModalTitle').textContent = titles[dest] || 'Admin Access';
+  document.getElementById('pinModalDesc').textContent  = descs[dest]  || 'Enter the admin PIN';
+  document.getElementById('pinModal').classList.add('open');
+}
+
+function closePinModal() {
+  document.getElementById('pinModal').classList.remove('open');
+  pinEntry = '';
+  updatePinDots();
+}
+
+function pinPress(digit) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updatePinDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 130);
+}
+
+function pinBackspace() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pinError').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.classList.toggle('filled', i < pinEntry.length);
+    dot.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  if (pinEntry === config.adminPin) {
+    closePinModal();
+    if (pinDestination === 'wallboard') openWallboard();
+    else showHistory();
+  } else {
+    for (let i = 0; i < 4; i++) document.getElementById('pd' + i).classList.add('error');
+    document.getElementById('pinError').textContent = 'Incorrect PIN. Try again.';
+    setTimeout(() => { pinEntry = ''; updatePinDots(); }, 750);
+  }
+}
+
+// ── PARCELS ───────────────────────────────────────────────
+let parcels = []; // [{ weight: '', photoBlob: null, photoUrl: null }]
+
+function initParcels() {
+  parcels = [];
+  addParcel();
+}
+
+function addParcel() {
+  parcels.push({ weight: '', photoBlob: null, photoUrl: null });
+  renderParcels();
+}
+
+function removeParcel(i) {
+  if (parcels.length <= 1) { alert('You need at least one parcel.'); return; }
+  // Revoke object URL if present
+  if (parcels[i]._objUrl) URL.revokeObjectURL(parcels[i]._objUrl);
+  parcels.splice(i, 1);
+  renderParcels();
+  updateSubmitBtn();
+}
+
+function renderParcels() {
+  const list = document.getElementById('parcelList');
+  list.innerHTML = parcels.map((p, i) => `
+    <div class="parcel-card" id="parcelCard_${i}">
+      <div class="parcel-card-header">
+        <div class="parcel-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Parcel ${i + 1}
+        </div>
+        ${parcels.length > 1 ? `<button class="parcel-remove-btn" onclick="removeParcel(${i})" title="Remove parcel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : ''}
+      </div>
+      <div class="parcel-row">
+        <div class="parcel-field">
+          <label>Weight (kg)</label>
+          <input type="number" min="0" step="0.01" placeholder="0.00" value="${escHtml(String(p.weight || ''))}"
+            oninput="parcels[${i}].weight=this.value;updateSubmitBtn()">
+        </div>
+        <div class="parcel-field">
+          <label>Photo</label>
+          <div style="display:flex;align-items:center;gap:6px;height:42px;">
+            ${p.photoBlob
+              ? `<span style="font-size:0.75rem;font-weight:600;color:var(--success);">✓ Photo taken</span>
+                 <button style="font-size:0.7rem;font-weight:600;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;" onclick="retakeParcelPhoto(${i})">Retake</button>`
+              : `<button style="font-size:0.75rem;font-weight:600;color:var(--brand);background:rgba(0,75,142,0.07);border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="document.getElementById('parcelPhotoInput_${i}').click()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M20.94 11A8.994 8.994 0 0 0 12 3a8.994 8.994 0 0 0-8.94 8M12 21a9 9 0 0 0 9-9"/></svg>
+                  Take Photo
+                </button>`
+            }
+          </div>
+        </div>
+      </div>
+      ${p.photoBlob && p._objUrl ? `<img src="${escHtml(p._objUrl)}" style="width:100%;border-radius:8px;object-fit:cover;max-height:180px;cursor:pointer;" onclick="openLightboxUrl('${escHtml(p._objUrl)}')">` : ''}
+      <input type="file" id="parcelPhotoInput_${i}" accept="image/*" capture="environment" style="display:none;" onchange="handleParcelPhoto(${i}, this)">
+    </div>
+  `).join('');
+}
+
+function retakeParcelPhoto(i) {
+  if (parcels[i]._objUrl) URL.revokeObjectURL(parcels[i]._objUrl);
+  parcels[i].photoBlob = null;
+  parcels[i]._objUrl   = null;
+  renderParcels();
+  updateSubmitBtn();
+}
+
+function handleParcelPhoto(i, input) {
+  const file = input.files[0];
+  if (!file) return;
+  // Compress the image
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else        { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        canvas.width = 0; canvas.height = 0;
+        if (!blob) { alert('Could not process photo. Try again.'); return; }
+        if (parcels[i]._objUrl) URL.revokeObjectURL(parcels[i]._objUrl);
+        parcels[i].photoBlob = blob;
+        parcels[i]._objUrl   = URL.createObjectURL(blob);
+        renderParcels();
+        updateSubmitBtn();
+      }, 'image/jpeg', 0.82);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── FORM VALIDATION ───────────────────────────────────────
+function updateSubmitBtn() {
+  const account  = document.getElementById('accountNumber')?.value.trim();
+  const customer = document.getElementById('customerName')?.value.trim();
+  const checker  = document.getElementById('checkerInitials')?.value.trim();
+  const packer   = document.getElementById('packerInitials')?.value.trim();
+  const allWeights = parcels.every(p => p.weight !== '' && p.weight !== null && !isNaN(parseFloat(p.weight)));
+  const btn = document.getElementById('submitBtn');
+  if (!btn) return;
+  btn.disabled = !(account && customer && checker && packer && parcels.length > 0 && allWeights);
+}
+
+// ── SUBMIT ────────────────────────────────────────────────
+async function submitQC() {
+  const account  = document.getElementById('accountNumber').value.trim();
+  const customer = document.getElementById('customerName').value.trim();
+  const checker  = document.getElementById('checkerInitials').value.trim();
+  const packer   = document.getElementById('packerInitials').value.trim();
+
+  if (!account || !customer || !checker || !packer) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+  if (parcels.length === 0) { alert('Add at least one parcel.'); return; }
+  for (const p of parcels) {
+    if (p.weight === '' || isNaN(parseFloat(p.weight))) { alert('Enter a weight for every parcel.'); return; }
+  }
+
+  document.getElementById('statusError').classList.remove('show');
+  document.getElementById('statusLoading').classList.add('show');
+  document.getElementById('submitBtn').disabled = true;
+
+  try {
+    const now      = new Date();
+    const pad      = n => String(n).padStart(2, '0');
+    const dateTag  = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+    // Upload photos for each parcel
+    const parcelData = [];
+    for (let i = 0; i < parcels.length; i++) {
+      let photoUrl = null;
+      if (parcels[i].photoBlob) {
+        const filename = `${dateTag}_${account}_parcel${i + 1}.jpg`;
+        photoUrl = await uploadParcelPhoto(filename, parcels[i].photoBlob);
+      }
+      parcelData.push({
+        parcel_number: i + 1,
+        weight_kg:     parseFloat(parcels[i].weight),
+        photo_url:     photoUrl
+      });
+    }
+
+    // Insert main record
+    const record = {
+      account_number:     account,
+      customer_name:      customer,
+      checker_initials:   checker,
+      packer_initials:    packer,
+      packer_name:        loggedInUser,
+      parcel_count:       parcels.length,
+      parcels:            parcelData,
+      checked_at:         now.toISOString()
+    };
+
+    const res = await sbRequest(`/rest/v1/${config.table}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(record)
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || `Save failed (${res.status})`);
+    }
+
+    document.getElementById('statusLoading').classList.remove('show');
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+    document.getElementById('successRef').textContent = `${account} · ${parcels.length} parcel${parcels.length !== 1 ? 's' : ''} · ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('statusLoading').classList.remove('show');
+    document.getElementById('statusErrorText').innerHTML = `<strong>Error saving record</strong>${escHtml(err.message)}`;
+    document.getElementById('statusError').classList.add('show');
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+// ── RESET ─────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('accountNumber').value    = '';
+  document.getElementById('customerName').value     = '';
+  document.getElementById('checkerInitials').value  = '';
+  document.getElementById('statusError').classList.remove('show');
+  initParcels();
+  updateSubmitBtn();
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('formSection').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function showForm() {
+  document.getElementById('historyView').classList.remove('show');
+  document.getElementById('detailView').classList.remove('show');
+  if (loggedInUser) {
+    document.getElementById('formSection').style.display = 'block';
+  } else {
+    document.getElementById('loginScreen').classList.remove('hidden');
+  }
+  window.scrollTo(0, 0);
+}
+
+// ── HISTORY ───────────────────────────────────────────────
+let allRecords = [];
+let isAdminHistory = false;
+
+async function showHistory(asAdmin = true) {
+  isAdminHistory = asAdmin;
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('detailView').classList.remove('show');
+  document.getElementById('historyView').classList.add('show');
+  document.getElementById('historyTitle').textContent = asAdmin ? 'All Records' : 'My Checks';
+  // Set today's date range by default
+  const today = todayStr();
+  document.getElementById('filterFrom').value = today;
+  document.getElementById('filterTo').value   = today;
+  document.getElementById('filterSearch').value = '';
+  window.scrollTo(0, 0);
+  await loadHistory();
+}
+
+function todayStr() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+}
+
+async function loadHistory() {
+  const list = document.getElementById('recordList');
+  list.innerHTML = '<div class="history-loading"><div class="spinner"></div>Loading…</div>';
+  try {
+    const fromEl = document.getElementById('filterFrom');
+    const toEl   = document.getElementById('filterTo');
+    let query = `/rest/v1/${config.table}?order=checked_at.desc&limit=500`;
+    if (fromEl.value) query += `&checked_at=gte.${fromEl.value}T00:00:00`;
+    if (toEl.value)   query += `&checked_at=lte.${toEl.value}T23:59:59`;
+    if (!isAdminHistory) query += `&packer_name=eq.${encodeURIComponent(loggedInUser)}`;
+
+    const res = await sbRequest(query, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
+    allRecords = await res.json();
+    applyFilters();
+  } catch (err) {
+    list.innerHTML = `<div class="history-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p>Error loading records:<br><span style="font-size:0.8rem">${escHtml(err.message)}</span></p>
+    </div>`;
+  }
+}
+
+function applyFilters() {
+  const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+  const filtered = allRecords.filter(r => {
+    if (!search) return true;
+    return (r.account_number || '').toLowerCase().includes(search) ||
+           (r.customer_name  || '').toLowerCase().includes(search) ||
+           (r.checker_initials || '').toLowerCase().includes(search) ||
+           (r.packer_initials  || '').toLowerCase().includes(search) ||
+           (r.packer_name     || '').toLowerCase().includes(search);
+  });
+  renderRecordList(filtered);
+}
+
+function renderRecordList(records) {
+  const list = document.getElementById('recordList');
+  if (!records.length) {
+    list.innerHTML = `<div class="history-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <p>No records found for this period.</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = records.map(r => {
+    const dt = r.checked_at ? new Date(r.checked_at) : null;
+    const dtStr = dt ? dt.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    return `<div class="record-card" onclick="showDetail(${escHtml(JSON.stringify(r))})">
+      <div class="record-card-top">
+        <div class="record-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="record-card-body">
+          <div class="record-card-title">${escHtml(r.account_number || '—')} — ${escHtml(r.customer_name || '')}</div>
+          <div class="record-card-sub">${dtStr}${r.packer_name ? ' · ' + escHtml(r.packer_name) : ''}</div>
+        </div>
+      </div>
+      <div class="record-card-badges">
+        <span class="record-badge parcels">${r.parcel_count || 0} parcel${r.parcel_count !== 1 ? 's' : ''}</span>
+        <span class="record-badge checker">Checked: ${escHtml(r.checker_initials || '—')}</span>
+        <span class="record-badge packer">Packed: ${escHtml(r.packer_initials || '—')}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearFilters() {
+  const today = todayStr();
+  document.getElementById('filterFrom').value   = today;
+  document.getElementById('filterTo').value     = today;
+  document.getElementById('filterSearch').value = '';
+  loadHistory();
+}
+
+// ── DETAIL VIEW ───────────────────────────────────────────
+let currentRecord = null;
+
+function showDetail(recordOrJson) {
+  const r = typeof recordOrJson === 'string' ? JSON.parse(recordOrJson) : recordOrJson;
+  currentRecord = r;
+  document.getElementById('historyView').classList.remove('show');
+  document.getElementById('detailView').classList.add('show');
+  renderDetail(r);
+  window.scrollTo(0, 0);
+}
+
+function renderDetail(r) {
+  const dt    = r.checked_at ? new Date(r.checked_at) : null;
+  const dtStr = dt ? dt.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+  const parcelsArr = Array.isArray(r.parcels) ? r.parcels : [];
+
+  const parcelsHtml = parcelsArr.map(p => `
+    <div class="detail-parcel-card">
+      <div class="detail-parcel-header">
+        <div class="detail-parcel-num">Parcel ${p.parcel_number || '—'}</div>
+        <div class="detail-parcel-weight">${p.weight_kg != null ? p.weight_kg + ' kg' : '—'}</div>
+      </div>
+      ${p.photo_url
+        ? `<img class="detail-parcel-img" src="${escHtml(p.photo_url)}" onclick="openLightboxUrl('${escHtml(p.photo_url)}')" alt="Parcel photo">`
+        : `<div class="detail-parcel-no-photo">No photo taken</div>`
+      }
+    </div>
+  `).join('');
+
+  // Admin edit button
+  const editBtn = isAdminHistory
+    ? `<button class="edit-record-btn" onclick="openEditModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Record (Admin)
+      </button>`
+    : '';
+
+  document.getElementById('detailContent').innerHTML = `
+    ${editBtn}
+    <div class="detail-card">
+      <div class="detail-field">
+        <div class="detail-field-label">Account Number</div>
+        <div class="detail-field-value">${escHtml(r.account_number || '—')}</div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-field-label">Customer Name</div>
+        <div class="detail-field-value">${escHtml(r.customer_name || '—')}</div>
+      </div>
+      <div class="detail-field" style="display:flex;gap:20px;">
+        <div>
+          <div class="detail-field-label">Checked by</div>
+          <div class="detail-field-value">${escHtml(r.checker_initials || '—')}</div>
+        </div>
+        <div>
+          <div class="detail-field-label">Packed by</div>
+          <div class="detail-field-value">${escHtml(r.packer_initials || '—')} ${r.packer_name ? '(' + escHtml(r.packer_name) + ')' : ''}</div>
+        </div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-field-label">Date & Time</div>
+        <div class="detail-field-value">${dtStr}</div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-field-label">Parcels (${parcelsArr.length})</div>
+        ${parcelsHtml || '<div style="color:var(--text-muted);font-size:0.85rem;">No parcel data</div>'}
+      </div>
+    </div>
+  `;
+}
+
+function returnToHistory() {
+  document.getElementById('detailView').classList.remove('show');
+  document.getElementById('historyView').classList.add('show');
+  window.scrollTo(0, 0);
+}
+
+// ── ADMIN EDIT ─────────────────────────────────────────────
+function openEditModal() {
+  if (!currentRecord) return;
+  const r = currentRecord;
+  const newAccount  = prompt('Account Number:', r.account_number || '');
+  if (newAccount === null) return;
+  const newCustomer = prompt('Customer Name:', r.customer_name || '');
+  if (newCustomer === null) return;
+  const newChecker  = prompt('Checker Initials:', r.checker_initials || '');
+  if (newChecker === null) return;
+  const newPacker   = prompt('Packer Initials:', r.packer_initials || '');
+  if (newPacker === null) return;
+
+  saveEdit(r.id, {
+    account_number:   newAccount.toUpperCase().replace(/[^A-Z0-9]/g, ''),
+    customer_name:    newCustomer.toUpperCase().replace(/[^A-Z0-9 ]/g, ''),
+    checker_initials: newChecker.toUpperCase().replace(/[^A-Z]/g, ''),
+    packer_initials:  newPacker.toUpperCase().replace(/[^A-Z]/g, '')
+  });
+}
+
+async function saveEdit(id, patch) {
+  try {
+    const res = await sbRequest(`/rest/v1/${config.table}?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify(patch)
+    });
+    if (!res.ok) throw new Error(`Update failed (${res.status})`);
+    const [updated] = await res.json();
+    // Patch in-memory
+    Object.assign(currentRecord, updated);
+    const idx = allRecords.findIndex(r => r.id === id);
+    if (idx >= 0) Object.assign(allRecords[idx], updated);
+    renderDetail(currentRecord);
+    alert('Record updated.');
+  } catch (e) {
+    alert('Failed to update: ' + e.message);
+  }
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────
+function openLightboxUrl(url) {
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+}
+
+// ── WALLBOARD ─────────────────────────────────────────────
+let wbTimer = null;
+let wbKnownIds = new Set();
+
+function openWallboard() {
+  document.getElementById('wallboardView').classList.add('show');
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('historyView').classList.remove('show');
+  document.getElementById('detailView').classList.remove('show');
+  wbUpdateClock();
+  wbLoad(true);
+}
+
+function closeWallboard() {
+  document.getElementById('wallboardView').classList.remove('show');
+  clearTimeout(wbTimer);
+  if (loggedInUser) {
+    document.getElementById('formSection').style.display = 'block';
+  } else {
+    document.getElementById('loginScreen').classList.remove('hidden');
+  }
+}
+
+function wbUpdateClock() {
+  if (!document.getElementById('wallboardView').classList.contains('show')) return;
+  const now = new Date();
+  document.getElementById('wbClock').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('wbDate').textContent  = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  setTimeout(wbUpdateClock, 1000);
+}
+
+async function wbLoad(firstLoad = false) {
+  if (!document.getElementById('wallboardView').classList.contains('show')) return;
+  try {
+    const today = todayStr();
+    const query = `/rest/v1/${config.table}?checked_at=gte.${today}T00:00:00&order=checked_at.desc&limit=50`;
+    const res = await sbRequest(query, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
+    const records = await res.json();
+
+    // Stats
+    const totalParcels   = records.reduce((sum, r) => sum + (r.parcel_count || 0), 0);
+    const checkers       = new Set(records.map(r => r.checker_initials).filter(Boolean));
+    document.getElementById('wbStatToday').textContent    = records.length;
+    document.getElementById('wbStatParcels').textContent  = totalParcels;
+    document.getElementById('wbStatCheckers').textContent = checkers.size;
+
+    // Ticker
+    const ticker = document.getElementById('wbTickerList');
+    if (records.length === 0) {
+      ticker.innerHTML = '<div style="color:rgba(255,255,255,0.2);font-size:0.85rem;padding:20px 0;">No submissions yet today.</div>';
+      wbKnownIds = new Set();
+    } else {
+      const newIds = new Set(records.map(r => r.id));
+      // On first load, everything counts as "known" (no flash effect)
+      if (firstLoad) wbKnownIds = new Set(records.map(r => r.id));
+
+      ticker.innerHTML = records.map(r => {
+        const isNew = !wbKnownIds.has(r.id);
+        const dt    = r.checked_at ? new Date(r.checked_at) : null;
+        const time  = dt ? dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—';
+        return `<div class="wb-ticker-item${isNew ? ' new' : ''}">
+          <div class="wb-ticker-dot${isNew ? ' new' : ''}"></div>
+          <div class="wb-ticker-body">
+            <div class="wb-ticker-account">${escHtml(r.account_number || '—')} — ${escHtml(r.customer_name || '')}</div>
+            <div class="wb-ticker-meta">Checked: ${escHtml(r.checker_initials || '—')} · Packed: ${escHtml(r.packer_initials || '—')} · ${escHtml(r.packer_name || '')}</div>
+          </div>
+          <div class="wb-ticker-right">
+            <div class="wb-ticker-parcels">${r.parcel_count || 0} parcel${r.parcel_count !== 1 ? 's' : ''}</div>
+            <div class="wb-ticker-time">${time}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      wbKnownIds = newIds;
+    }
+
+    const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('wbRefreshText').textContent = `Last updated ${now} · Refreshes every 30s`;
+
+  } catch (e) {
+    document.getElementById('wbRefreshText').textContent = `Error: ${e.message} — retrying…`;
+  }
+
+  clearTimeout(wbTimer);
+  wbTimer = setTimeout(() => wbLoad(false), 30000);
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeLightbox();
+    closePinModal();
+  }
+  const pinModal = document.getElementById('pinModal');
+  if (pinModal && pinModal.classList.contains('open') && /^\d$/.test(e.key)) pinPress(e.key);
+  if (pinModal && pinModal.classList.contains('open') && e.key === 'Backspace') pinBackspace();
+  const loginStep2 = document.getElementById('loginStep2');
+  if (loginStep2 && loginStep2.style.display !== 'none' && /^\d$/.test(e.key)) loginPinPress(e.key);
+  if (loginStep2 && loginStep2.style.display !== 'none' && e.key === 'Backspace') loginPinBackspace();
+});
+
+// ── INIT ──────────────────────────────────────────────────
+initUserLogin();
+</script>
+</body>
+</html>
