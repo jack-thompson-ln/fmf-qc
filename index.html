@@ -1139,12 +1139,12 @@ let isAdminHistory = false;
 
 async function showHistory(asAdmin = true) {
   isAdminHistory = asAdmin;
+  document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('successScreen').classList.remove('show');
   document.getElementById('detailView').classList.remove('show');
   document.getElementById('historyView').classList.add('show');
   document.getElementById('historyTitle').textContent = asAdmin ? 'All Records' : 'My Checks';
-  // Set today's date range by default
   const today = todayStr();
   document.getElementById('filterFrom').value = today;
   document.getElementById('filterTo').value   = today;
@@ -1463,6 +1463,7 @@ function escHtml(str) {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeLightbox();
+    if (!document.getElementById('pinModal').classList.contains('open')) return;
     closePinModal();
   }
   const pinModal = document.getElementById('pinModal');
