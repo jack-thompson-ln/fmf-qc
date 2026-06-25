@@ -301,6 +301,7 @@
   .wb-ticker-parcels { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 800; color: var(--accent); }
   .wb-ticker-time { font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-top: 2px; }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .wb-ticker-weights { font-size: 0.68rem; color: rgba(255,255,255,0.35); margin-top: 3px; letter-spacing: 0.02em; }
   .wb-refresh-info { font-size: 0.65rem; color: rgba(255,255,255,0.2); padding: 8px 24px 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
   .wb-exit-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.5); cursor: pointer; }
   .wb-exit-btn:hover { color: white; border-color: rgba(255,255,255,0.3); }
@@ -586,7 +587,6 @@
   <div class="wb-stats" id="wbStats">
     <div class="wb-stat"><div class="wb-stat-val blue" id="wbStatToday">—</div><div class="wb-stat-lbl">Today's Checks</div></div>
     <div class="wb-stat"><div class="wb-stat-val green" id="wbStatParcels">—</div><div class="wb-stat-lbl">Total Parcels</div></div>
-    <div class="wb-stat"><div class="wb-stat-val" id="wbStatCheckers">—</div><div class="wb-stat-lbl">Checkers Active</div></div>
   </div>
   <div class="wb-ticker-wrap">
     <div class="wb-ticker-label">Recent Submissions</div>
@@ -1125,6 +1125,8 @@ function resetForm() {
 function showForm() {
   document.getElementById('historyView').classList.remove('show');
   document.getElementById('detailView').classList.remove('show');
+  document.getElementById('wallboardView').classList.remove('show');
+  clearTimeout(wbTimer);
   if (loggedInUser) {
     document.getElementById('formSection').style.display = 'block';
   } else {
@@ -1140,6 +1142,7 @@ let isAdminHistory = false;
 async function showHistory(asAdmin = true) {
   isAdminHistory = asAdmin;
   document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('wallboardView').classList.remove('show');
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('successScreen').classList.remove('show');
   document.getElementById('detailView').classList.remove('show');
@@ -1149,6 +1152,7 @@ async function showHistory(asAdmin = true) {
   document.getElementById('filterFrom').value = today;
   document.getElementById('filterTo').value   = today;
   document.getElementById('filterSearch').value = '';
+  clearTimeout(wbTimer);
   window.scrollTo(0, 0);
   await loadHistory();
 }
@@ -1368,12 +1372,14 @@ let wbKnownIds = new Set();
 
 function openWallboard() {
   document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('wallboardView').classList.add('show');
-  document.getElementById('formSection').style.display = 'none';
   document.getElementById('historyView').classList.remove('show');
   document.getElementById('detailView').classList.remove('show');
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('wallboardView').classList.add('show');
   wbUpdateClock();
-  wbLoad(true);
+  // Small delay so the DOM has painted and classList.contains('show') is true
+  setTimeout(() => wbLoad(true), 50);
 }
 
 function closeWallboard() {
@@ -1404,11 +1410,9 @@ async function wbLoad(firstLoad = false) {
     const records = await res.json();
 
     // Stats
-    const totalParcels   = records.reduce((sum, r) => sum + (r.parcel_count || 0), 0);
-    const checkers       = new Set(records.map(r => r.checker_initials).filter(Boolean));
-    document.getElementById('wbStatToday').textContent    = records.length;
-    document.getElementById('wbStatParcels').textContent  = totalParcels;
-    document.getElementById('wbStatCheckers').textContent = checkers.size;
+    const totalParcels = records.reduce((sum, r) => sum + (r.parcel_count || 0), 0);
+    document.getElementById('wbStatToday').textContent   = records.length;
+    document.getElementById('wbStatParcels').textContent = totalParcels;
 
     // Ticker
     const ticker = document.getElementById('wbTickerList');
@@ -1417,18 +1421,23 @@ async function wbLoad(firstLoad = false) {
       wbKnownIds = new Set();
     } else {
       const newIds = new Set(records.map(r => r.id));
-      // On first load, everything counts as "known" (no flash effect)
       if (firstLoad) wbKnownIds = new Set(records.map(r => r.id));
 
       ticker.innerHTML = records.map(r => {
         const isNew = !wbKnownIds.has(r.id);
         const dt    = r.checked_at ? new Date(r.checked_at) : null;
         const time  = dt ? dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—';
+        // Build per-parcel weight list
+        const parcelsArr = Array.isArray(r.parcels) ? r.parcels : [];
+        const parcelWeights = parcelsArr.length
+          ? parcelsArr.map(p => `P${p.parcel_number}: ${p.weight_kg != null ? p.weight_kg + 'kg' : '—'}`).join(' · ')
+          : '';
         return `<div class="wb-ticker-item${isNew ? ' new' : ''}">
           <div class="wb-ticker-dot${isNew ? ' new' : ''}"></div>
           <div class="wb-ticker-body">
             <div class="wb-ticker-account">${escHtml(r.account_number || '—')} — ${escHtml(r.customer_name || '')}</div>
             <div class="wb-ticker-meta">Checked: ${escHtml(r.checker_initials || '—')} · Packed: ${escHtml(r.packer_initials || '—')} · ${escHtml(r.packer_name || '')}</div>
+            ${parcelWeights ? `<div class="wb-ticker-weights">${escHtml(parcelWeights)}</div>` : ''}
           </div>
           <div class="wb-ticker-right">
             <div class="wb-ticker-parcels">${r.parcel_count || 0} parcel${r.parcel_count !== 1 ? 's' : ''}</div>
